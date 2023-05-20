@@ -1,0 +1,5 @@
+ const BUSD_WHALE="0x8894E0a0c962CB723c1976a4421c95949bE2D4E3"
+
+ module.exports={
+    BUSD_WHALE
+ }
