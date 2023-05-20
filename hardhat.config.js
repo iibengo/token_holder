@@ -1,7 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
-
-const dotenv = require("dotenv").config({ path: __dirname + "/.env" })
+require("dotenv").config({ path: __dirname + "/.env" })
 
 module.exports =  {
   solidity: "0.8.17",
@@ -20,7 +19,7 @@ module.exports =  {
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      accounts:   [process.env.MAIN],
+      accounts: [process.env.MAIN],
     },
   },
 };
