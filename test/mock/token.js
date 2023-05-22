@@ -1,4 +1,8 @@
  const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
-module.exports={
-    BUSD
+ const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+ const BABYDOGE = "0xc748673057861a797275cd8a068abb95a902e8de"
+ module.exports={
+    BUSD,
+    WBNB,
+    BABYDOGE
  }

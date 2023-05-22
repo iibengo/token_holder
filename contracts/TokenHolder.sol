@@ -1,59 +1,72 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./interfaces/IERC20.sol";
-struct Token {
-    address tokenAddress;
-    string name;
-    uint256 id;
-}
+import "./Wallet.sol";
+import "./Swap.sol";
 
-contract TokenHolder {
-    mapping(uint256 => Token) private tokens;
-    address public owner;
-    uint256 private tokenCount = 0;
-    mapping(address => uint256) private balance;
-
-    event Deposit(address token, uint256 amount);
-    event Add(address token, uint256 id);
-
-    constructor() {
+contract TokenHolder is Wallet, Swap {
+    constructor(address _output, address _route) {
         owner = msg.sender;
+        outPut = _output;
+        route = IUniswapV2Router02(_route);
     }
 
-    modifier isOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
-        _;
-    }
-
-    function addToken(
-        address tokenAddress,
+    function add(
+        address token,
         string memory tokenName
     ) external isOwner {
-        Token storage newToken = tokens[tokenCount];
-        newToken.tokenAddress = tokenAddress;
-        newToken.name = tokenName;
-        newToken.id = tokenCount;
-        tokens[tokenCount] = newToken;
-        balance[tokenAddress] = 0;
-        emit Deposit(msg.sender, tokenCount);
-        tokenCount++;
+        addToken(token, tokenName);
     }
 
-    function getTokenList() public view returns (Token[] memory) {
-        Token[] memory tokenList = new Token[](tokenCount);
-        uint256 index = 0;
-        for (uint256 i = 0; i < tokenCount; i++) {
-            tokenList[index] = tokens[i];
-            index++;
-        }
-        return tokenList;
+    function deposit(address token, uint256 amount) external isOwner {
+        depositToken(token, amount);
     }
-    function deposit(address tokenAddress, uint256 amount) external {
-        require(amount > 0, "Amount must be greater than zero");
-        IERC20 token = IERC20(tokenAddress);
-        require(token.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
-        token.transferFrom(msg.sender, address(this), amount);
-        balance[tokenAddress] += amount;
-        emit Deposit(tokenAddress, amount);
+
+    function addAndDeposit(
+        address token,
+        uint256 amount,
+        string memory tokenName
+    ) external isOwner {
+        addToken(token, tokenName);
+        depositToken(token, amount);
+    }
+
+    function tokenList() external view isOwner returns (Token[] memory) {
+        return getTokenList();
+    }
+
+    function placeTrade(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 amountOut
+    ) external isOwner {
+        swapTokenForToken(tokenIn, tokenOut,amountIn, amountOut);
+    }
+    function buyTokenWithEth(
+        address tokenAddress,
+        uint256 amount
+    ) external isOwner {
+        swapETHForToken(tokenAddress, amount);
+    }
+    function placeTradeWithFee(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 amountOutWithFee
+    ) external isOwner {
+        swapTokenForTokenWithFee(tokenIn, tokenOut, amountIn,amountOutWithFee);
+    }
+
+    function sellTokensForEth(
+        address token,
+        uint256 amount
+    ) external isOwner {
+        swapTokenForETH(token, amount);
+    }
+     function withdraw(address token, uint256 amount) external isOwner {
+        withdrawToken(token, amount);
+    }
+     function updateRoute(address token, uint256 amount) external isOwner {
+        withdrawToken(token, amount);
     }
 }
